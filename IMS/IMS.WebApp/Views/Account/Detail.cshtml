@@ -1,0 +1,81 @@
+﻿ @model DetailUserViewModel
+ @using IMS.Models
+ @using Microsoft.AspNetCore.Identity
+ @inject UserManager<User> _userManager
+<partial name="_Notification" />
+
+@{
+    ViewData["Title"] = "View User Details";
+}
+
+ <div class="container">
+     <div class="col-12 mt-4 ">
+         <div class="card">
+            
+             <div class="card-body">
+                <h4 class="header-title">User Detail:</h4>
+                <div class="d-flex justify-content-end py-2 px-3">
+                    @{
+                        var buttonText = Model.User.IsActive ? "Deactivate User" : "Activate User";
+                        var buttonClass = Model.User.IsActive ? "btn-danger" : "btn-success";
+                    }
+                    <form method="post" action="@Url.Action("UpdateStatus", "Account", new { id = Model.User.Id })">
+                        <button type="submit" class="btn @buttonClass">@buttonText</button>
+                    </form>
+                </div>
+
+                 <div class="row">
+                     <div class="form-group col-6">
+                         <label class="col-form-label" asp-for="User.FullName">FullName </label>
+                         <input type="text" class="form-control" readonly asp-for="User.FullName" />
+                     </div>
+                     <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="User.Email">Email </label>
+                         <input type="text" class="form-control" readonly asp-for="User.Email" />
+                     </div>
+                     <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="User.DOB" >DOB </label>
+                         <input type="date" class="form-control" readonly asp-for="User.DOB" />
+                     </div>
+                     <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="User.Address">Address </label>
+                         <input type=" text" class="form-control" readonly asp-for="User.Address" />
+                     </div>
+                     <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="User.PhoneNumber">PhoneNumber </label>
+                        <input type="text" class="form-control" readonly asp-for="User.PhoneNumber" />
+                     </div>
+                     <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="User.Gender">Gender</label>
+                        <input class="form-control" readonly asp-for="User.Gender" />
+                     </div>
+                     <div class="form-group col-6">
+                         <label class="col-form-label" asp-for="Role" >Role</label>
+                        <input type="text" class="form-control" readonly asp-for="Role" />
+                     </div>
+
+                     <div class="form-group col-6">
+                         <label class="col-form-label" asp-for="Department.DepartmentName">Department </label>
+                        <input type="text" class="form-control" readonly asp-for="Department.DepartmentName" />
+                     </div>
+                     <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="User.Note">Note </label>
+                        <textarea rows="5" class="form-control" readonly asp-for="User.Note"></textarea>
+                     </div>
+                     <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="User.IsActive"  >Status </label>
+                        <input type="text" class="form-control" readonly value="@(Model.User.IsActive ? "Active" : "Inactive")" />
+                     </div>
+                 </div>
+                 <div class="d-flex justify-content-end mt-2">
+                     <span class="mx-2"></span>
+                    <a asp-asp-controller="Account" asp-action="Edit" asp-route-id="@Url.ActionContext.RouteData.Values["id"]" class="btn btn-info btn-inform mr-3"><i class="fa fa-pencil-square-o mr-1"></i>Edit</a>
+                    <a asp-controller="Account" asp-action="Index" class="btn btn-secondary btn-inform mr-3">Cancel</a>
+                 </div>
+             </div>
+         </div>
+     </div>
+ </div>
+
+ 
+ 

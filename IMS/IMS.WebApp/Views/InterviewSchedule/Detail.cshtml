@@ -1,0 +1,114 @@
+﻿@model InterviewScheduleVM
+@using IMS.Models;
+
+@{
+    ViewData["Title"] = "Interview Schedule Detail";
+}
+
+<div class="container">
+    <div class="col-12 mt-4 ">
+        
+        <div class="d-flex justify-content-end py-2 px-3">
+            
+            <span class="small" style="margin-right:20px">
+                Created on: <span style="color: blue">@Model.InterviewSchedule.CreatedOn.ToString("dd/MM/yyyy")</span>
+                | Last updated by: <u>@Model.InterviewSchedule.LastUpdatedBy</u>
+                on
+                @if (Model.InterviewSchedule.LastUpdatedOn.Date == DateTime.UtcNow.Date)
+                {
+                    @:today
+                }
+                else
+                {
+                    <span style="color: blue">@Model.InterviewSchedule.LastUpdatedOn.ToString("dd-MM-yyyy")</span>
+                }
+            </span>
+            
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                <h4 class="header-title">Interview Schedule Detail:</h4>
+                    @if (!User.IsInRole("Interviewer") && Model.InterviewSchedule.Status == IMS.Utilities.Constants.InterviewScheduleStatus.Open)
+                    {
+                        <a class="btn btn-primary " style="margin-bottom:20px" asp-controller="InterviewSchedule" asp-action="SendReminder" asp-route-id="@Url.ActionContext.RouteData.Values["id"]"> Send Reminder </a>
+                    }
+                </div>
+                <div class="row">
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Interview Title: </label>
+                        <input type="text" class="form-control" readonly asp-for="InterviewSchedule.Title" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Jobs: </label>
+                        <input type="text" class="form-control" readonly asp-for="Job.Title" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Candidates: </label>
+                        <input type="text" class="form-control" readonly asp-for="Candidate.FullName" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Interviewers: </label>
+                        <input type="text" class="form-control" readonly value="@string.Join(", ", Model.Interviewers.Select(ia => ia.FullName))" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Interview Schedule Date: </label>
+                        @{
+                            var scheduleDate = Model.InterviewSchedule.DueDate.ToString("dd/MM/yyyy");
+                        }
+                        <input type="text" class="form-control" readonly value="@($"{scheduleDate}")" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Recruiter Owners: </label>
+                        <input type="text" class="form-control" readonly asp-for="InterviewSchedule.Recruiter" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Interview Schedule Time:</label>
+                        @{
+                            var startTime = Model.InterviewSchedule.StartTime?.ToString("HH:mm") ?? "N/A";
+                            var endTime = Model.InterviewSchedule.EndTime?.ToString("HH:mm") ?? "N/A";
+                        }
+                        <input type="text" class="form-control" readonly value="@($"From {startTime} To {endTime}")" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Location: </label>
+                        <input type="text" class="form-control" readonly asp-for="InterviewSchedule.Location" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Notes: </label>
+                        <textarea rows="5" class="form-control" readonly asp-for="InterviewSchedule.Notes" id="Notes"></textarea>
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Meeting ID: </label>
+                        <input type="text" class="form-control" readonly asp-for="InterviewSchedule.MeetingId" />
+                        <label class="col-form-label">Status: </label>
+                        <input type="text" class="form-control" readonly asp-for="InterviewSchedule.Status" />
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-2">
+                    @if (User.IsInRole("Interviewer") && Model.InterviewSchedule.Status != IMS.Utilities.Constants.InterviewScheduleStatus.Cancelled)
+                    {
+                        <a asp-asp-controller="InterviewSchedule" asp-action="SubmitResult" asp-route-id="@Url.ActionContext.RouteData.Values["id"]" class="btn btn-warning mr-3"><i class="fa fa-check-square-o mr-1"></i>Submit Result</a>
+                    }
+                    @if (!User.IsInRole("Interviewer") && Model.InterviewSchedule.Status != IMS.Utilities.Constants.InterviewScheduleStatus.Cancelled)
+                    {
+                        <a asp-asp-controller="InterviewSchedule" asp-action="Edit" asp-route-id="@Url.ActionContext.RouteData.Values["id"]"  class="btn btn-info btn-inform mr-3"><i class="fa fa-pencil-square-o mr-1"></i>Edit</a>
+                    }
+                    
+                    <a asp-controller="InterviewSchedule" asp-action="Index" class="btn btn-secondary btn-inform">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var scheduleDate = document.getElementById("scheduleDate");
+            scheduleDate.value = "@Model.InterviewSchedule.DueDate.ToString("yyyy-MM-dd")" || "N/A";
+
+        });
+    </script>
+}

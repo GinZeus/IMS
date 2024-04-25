@@ -1,0 +1,181 @@
+﻿<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="~/images/icon/favicon.ico">
+    <link rel="stylesheet" href="~/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/css/themify-icons.css">
+    <link rel="stylesheet" href="~/css/metisMenu.css">
+    <link rel="stylesheet" href="~/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/css/slicknav.min.css">
+    <!-- amchart css -->
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="//cdn.datatables.net/2.0.1/css/dataTables.dataTables.min.css" />
+    <!-- others css -->
+    <link rel="stylesheet" href="~/css/typography.css">
+    <link rel="stylesheet" href="~/css/default-css.css">
+    <link rel="stylesheet" href="~/css/styles.css">
+    <link rel="stylesheet" href="~/css/responsive.css">
+    <!-- modernizr css -->
+    <script src="~/js/vendor/modernizr-2.8.3.min.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- multi-select-tag css -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!--Toastr-->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+
+    <!--Page title-->
+    <link rel="icon" href="~/images/icon/IMS_LOGO.png" type="image/x-icon">
+    <title>@ViewData["Title"] | IMS</title>
+
+</head>
+<body>
+	<div class="page-container sbar_collapsed">
+		<!-- sidebar menu area start -->
+		<div class="sidebar-menu">
+			<div class="sidebar-header">
+				<div class="logo">
+					<a asp-controller="Home" asp-action="Index"><img src="~/images/icon/IMS_LOGO (1).png" style="height:80px" alt="logo"></a>
+				</div>
+			</div>
+			<div class="main-menu">
+				<div class="menu-inner">
+					<nav>
+						<ul class="metismenu" id="menu">
+							<li>
+								<a asp-controller="Home" asp-action="Index" aria-expanded="true"><i class="ti-home"></i><span>Home</span></a>
+							</li>
+							<li>
+								<a asp-controller="Candidate" asp-action="Index" aria-expanded="true"><i class="fa fa-users"></i><span>Candidate</span></a>
+							</li>
+							<li>
+								<a asp-controller="Job" asp-action="Index" aria-expanded="true">
+									<i class="ti-briefcase"></i><span>Job</span>
+								</a>
+							</li>
+							<li>
+								<a asp-controller="InterviewSchedule" asp-action="Index" aria-expanded="true"><i class="ti-comments"></i><span>Interview</span></a>
+							</li>
+							@if (!User.IsInRole("Interviewer"))
+							{
+								<li>
+									<a asp-controller="Offer" asp-action="Index" aria-expanded="true"><i class="fa fa-newspaper-o"></i><span>Offer</span></a>
+								</li>
+							}
+							@if (User.IsInRole("Admin"))
+							{
+								<li>
+									<a asp-controller="Account" asp-action="Index" aria-expanded="true"><i class="ti-user"></i><span>User</span></a>
+
+								</li>
+							}
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+		<!-- sidebar menu area end -->
+		<div class="main-content mh-0">
+			<!-- page title area start -->
+			<div class="page-title-area">
+				<div class="row align-items-center mh-70">
+					<div class="col-sm-6">
+						<div class="nav-btn pull-left">
+							<span></span>
+							<span></span>
+							<span></span>
+						</div>
+						<div class="breadcrumbs-area clearfix">
+							<ul class="breadcrumbs pull-left ml-2 mt-2">
+								<li><a asp-action="Index" asp-controller="Home">IMS</a></li>
+								@if (ViewContext.RouteData.Values["action"]?.ToString() == "Index")
+								{
+									<li><span style="pointer-events: none;">@ViewContext.RouteData.Values["controller"]</span></li>
+								}
+								@if (!string.IsNullOrEmpty(ViewContext.RouteData.Values["controller"]?.ToString()) && !string.IsNullOrEmpty(ViewContext.RouteData.Values["action"]?.ToString()) && ViewContext.RouteData.Values["action"]?.ToString() != "Index")
+								{
+									<li><a asp-action="Index" asp-controller="@ViewContext.RouteData.Values["controller"]">@ViewContext.RouteData.Values["controller"]</a></li>
+								}
+							</ul>
+						</div>
+					</div>
+					<div class="col-sm-6 clearfix">
+						<partial name="_UserLoginPartial" />
+					</div>
+				</div>
+			</div>
+			<!-- page title area end -->
+			<div class="main-content-inner">
+				@RenderBody()
+			</div>
+		</div>
+	</div>
+	<footer>
+		<div class="footer-area">
+			<div>
+				<img src="~/images/icon/IMS_LOGO.png" alt=""/>
+				<p>Interview Management System - A product of [HN24_CPL_PJB_01][Group_3]</p>
+				<p><i class="fa fa-envelope"></i> Email: marjohndoe@gmail.com</p>
+				<p> <i class="fa fa-phone"></i> Phone number: 0369685xxx</p>
+			</div>
+		</div>
+	</footer>
+	<!-- jquery latest version -->
+	<script src="~/js/vendor/jquery-2.2.4.min.js"></script>
+	@* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
+	<!-- bootstrap 4 js -->
+	<script src="~/js/popper.min.js"></script>
+	<script src="~/js/bootstrap.min.js"></script>
+	<script src="~/js/owl.carousel.min.js"></script>
+	<script src="~/js/metisMenu.min.js"></script>
+	<script src="~/js/jquery.slimscroll.min.js"></script>
+	<script src="~/js/jquery.slicknav.min.js"></script>
+
+	<!-- start chart js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+	<!-- start highcharts js -->
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+	<script src="https://code.highcharts.com/modules/export-data.js"></script>
+	<!-- start amcharts -->
+	<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+	<script src="https://www.amcharts.com/lib/3/ammap.js"></script>
+	<script src="https://www.amcharts.com/lib/3/maps/js/worldLow.js"></script>
+	<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+	<script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+	<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+	<!-- all line chart activation -->
+	<script src="~/js/line-chart.js"></script>
+	<!-- all pie chart -->
+	<script src="~/js/pie-chart.js"></script>
+	<!-- all bar chart -->
+	<script src="~/js/bar-chart.js"></script>
+	<!-- all map chart -->
+	<script src="~/js/maps.js"></script>
+	<script src="//cdn.datatables.net/2.0.1/js/dataTables.min.js"></script>
+	<!-- others plugins -->
+	<script src="~/js/plugins.js"></script>
+	<script src="~/js/scripts.js"></script>
+
+	<script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+    <!--Toastr-->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+	<script>
+		toastr.options = {
+			"closeButton": true,
+			"newestOnTop": true,
+			"progressBar": true
+		}
+	</script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

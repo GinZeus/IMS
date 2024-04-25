@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ClosedXML" Version="0.102.2" />
+		<PackageReference Include="Diacritics" Version="3.3.27" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+		<PackageReference Include="MailKit" Version="4.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\IMS.Data\IMS.Data.csproj" />
+		<ProjectReference Include="..\IMS.HtmlEmail\IMS.HtmlEmail.csproj" />
+		<ProjectReference Include="..\IMS.Models\IMS.Models.csproj" />
+		<ProjectReference Include="..\IMS.Utilities\IMS.Utilities.csproj" />
+	</ItemGroup>
+
+</Project>

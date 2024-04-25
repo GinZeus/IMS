@@ -1,0 +1,63 @@
+﻿@model LoginVM
+@using Microsoft.AspNetCore.Identity
+@{
+	ViewData["Title"] = "Log in";
+	Layout = "/Views/Shared/_LayoutIdentity.cshtml";
+}
+
+<partial name="_Notification" />
+<div class="login-area login-s2">
+	<div class="login-box ptb--100">
+		<form method="post">
+			<div class="login-form-head">
+				<div>
+					<h1><b>IMS Recruitment</b></h1>
+				</div>
+				<h4 class="mt-2">Sign In</h4>
+				<p>Welcome to IMS Recruitment, please sign in to continue ! </p>
+			</div>
+			<div class="login-form-body">
+				<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+				<div class="form-login">
+					<label asp-for="Username" class="form-label">Username</label>
+					<input asp-for="Username" autocomplete="username" aria-required="true" />
+					<i class="ti-user"></i>
+					<div><span asp-validation-for="Username" class="text-danger"></span></div>
+				</div>
+				<div class="form-login">
+					<label asp-for="Password" class="form-label">Password</label>
+					<input asp-for="Password" autocomplete="current-password" aria-required="true" />
+					<i class="ti-lock"></i>
+					<div>
+						<span asp-validation-for="Password" class="text-danger"></span>
+					</div>
+
+				</div>
+				<div class="row mb-4 rmber-area">
+					<div class="col-6">
+						<div class="custom-control custom-checkbox mr-sm-2">
+							<input type="checkbox" class="custom-control-input" asp-for="RememberMe">
+							@*@Html.DisplayNameFor(m => m.Input.RememberMe)*@
+							<label class="custom-control-label" asp-for="RememberMe">Remember Me</label>
+						</div>
+					</div>
+					<div class="col-6 text-right">
+						<a id="forgot-password" asp-controller="Account" asp-action="ForgotPassword">Forgot Password?</a>
+					</div>
+				</div>
+				<div class="submit-btn-area">
+					<button id="form_submit" type="submit">Sign in <i class="ti-arrow-right"></i></button>
+				</div>
+				<div class="form-footer text-center mt-5">
+					<p class="text-muted">Don't have an account? Please contact admin to get one.</p>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+}

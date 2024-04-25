@@ -1,0 +1,195 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+.mh-70{
+    min-height: 70px;
+}
+
+.required::after {
+    content: "*";
+    color: red;
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 4px;
+    line-height: 0px;
+}
+
+.custom-second-badge {
+    background-color: #e4e4e4;
+    color: black;
+    border: 1px solid #aaa;
+    font-size: 14px;
+    font-weight: normal;
+    border-radius: 4px;
+    margin: 2px;
+}
+
+
+.select2{
+    width: 100% !important;
+}
+
+.select2-container .select2-selection--multiple {
+    border-color: #aaaaaa4d !important;
+    font-size: 14px;
+    padding: 7px 0 !important;
+    padding-left: 12.8px !important;
+    height: 44px !important;
+}
+.select2-search__field {
+    margin-left: 0px !important;
+    margin-top: 5px !important;
+}
+
+.select2-selection__rendered {
+    background-color: white !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice{
+    background-color: rgb(142, 222, 225) !important;
+    border: none;
+    margin: auto !important;
+    margin-right: 5px !important;
+    line-height: 27px;
+}
+
+.btn-inform{
+    width: 90px;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    height: 43.03px;
+    margin-left: 5px !important;
+    border-color: #aaa;
+    border-radius: .25rem;
+}
+.filter-select {
+    width: 166px;
+    height: 33px !important;
+    font-size: 13px;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    padding: 5px;
+    background-color: transparent;
+}
+
+.btn-font-size{
+    font-size: 12px;
+}
+
+.logout i {
+    text-align: center;
+    font-size: 180px;
+    color: #808080ff;
+    margin-left: 45px;
+    margin-top: 50px;
+    margin-bottom: 30px;
+}
+
+.logout {
+    border: none;
+    border-radius: 18px;    
+}
+
+.logout-header {
+    border: none;
+}
+
+.logout-body {
+    border: none;
+    text-align: center;
+}
+
+.logout-footer {
+    margin-top: 15px;
+    justify-content: center;
+    border: none;
+}
+
+.user-profile i {
+    width: 44px;
+    height: 45px;
+    margin-left: 20px;
+    color: #9b9b9bff;
+    font-size: 30px;
+    font-weight: 500;
+    text-align: center;
+    padding: 8px;
+    background: #e8e8e8da;
+    border-radius: 50%;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.user-profile i:hover {
+    color: #ec3c3cff ;
+    background: #ffffffff ;
+}
+
+.user-profile p {
+    font-size: 12px;
+    font-weight: 500;
+    color: #efefef;
+}
+
+.welcome {
+    vertical-align:middle;
+    text-align: center;
+}
+
+.welcome img {
+    width: 30%; /* Adjust image width as needed */
+    max-width: 80px; /* Optional: Set maximum image width */
+    margin-bottom: 2rem;
+    margin-top: 180px;
+}
+
+.welcome h1 {
+    font-size: 35px;
+    margin-left: 15px;
+    margin-bottom: 1rem;
+}
+
+.welcome p {
+    font-size: 20px;
+    margin-left: 15px;
+    margin-bottom: 1rem;
+}
+
+.welcome nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 200px;
+}
+
+.welcome nav a {
+    text-decoration: none;
+    color: #333;
+    padding: 0.5rem 1rem;
+}
+
+.welcome nav a i {
+    margin-right: 5px;
+}
+
+.welcome nav a:hover {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}

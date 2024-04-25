@@ -1,0 +1,62 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using IMS.HtmlEmail.Views.Emails.InterviewReminder
+@model InterviewReminderVM
+@{
+    ViewData["EmailTitle"] = "Welcome";
+    Layout = null; // Apply layout. Currently we don't need layout or common components
+}
+
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
+    <tr>
+        <td>&nbsp;</td>
+        <td class="container">
+            <div class="content">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
+                    <!-- START MAIN CONTENT AREA -->
+                    <tr>
+                        <td class="wrapper">
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+                                <tbody>
+                                    <tr>
+                                        This email is from IMS system,
+                                    </tr>
+                                    <tr>
+                                        @if (Model.StartTime.HasValue || Model.EndTime.HasValue){<p class="mt-0 mb-0">You have an interview TODAY at @Model.StartTime.Value.ToString("HH:mm:tt") to @Model.EndTime.Value.ToString("HH:mm:tt")</p>}
+                                        else
+                                        {
+                                            <p class="mt-0 mb-0">You have an interview</p>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        With Candidate @Model.CandidateName position @Model.Position, the CV is attached with this no-reply-email
+                                    </tr>
+                                    <tr>
+                                        If anything wrong, please refer recruiter @Model.Recruiter or visit our website 
+                                    </tr>
+                                    <tr>
+                                        <a href="@Model.InterviewDetailURL" target="_blank">URL to interview schedule details</a>
+                                    </tr>
+                                    @if(Model.MeetingId != null){
+                                        <tr>
+                                            Please join interview room ID: <a href="@Model.MeetingId">@Model.MeetingId</a>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        Thanks & Regards!
+                                    </tr>
+                                    <tr>
+                                        IMS Team
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- END MAIN CONTENT AREA -->
+                </table>
+            </div>
+        </td>
+    </tr>
+</table>

@@ -1,0 +1,93 @@
+﻿@model EditUserVM
+@using Microsoft.AspNetCore.Identity
+@{
+    SelectList departmentList = new SelectList(Model.Departments, nameof(Department.DepartmentId), nameof(Department.DepartmentName), Model.SelectedDepartment);
+    SelectList roleList = new SelectList(Model.Roles, nameof(IdentityRole.Name), nameof(IdentityRole.Name), Model.SelectedRole);
+    SelectList genderList = new SelectList(Model.Genders, Model.SelectedGender);
+
+    ViewData["Title"] = "Edit User";
+}
+<partial name="_Notification" />
+<div class="container">
+    <div class="col-12 mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Edit User</h4>
+                <form asp-controller="Account" asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="row">
+                        <div class="form-group col-6">
+                            <label asp-for="FullName" class="col-form-label required">Full name </label>
+                            <input type="text" asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label asp-for="Email" class="col-form-label required">Email </label>
+                            <input type="email" asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                            <label asp-for="DOB" class="col-form-label">Date of Birth</label>
+                            <input asp-for="DOB" type="date" class="form-control" max="@DateTime.Now" />
+                            <span asp-validation-for="DOB" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                            <label asp-for="Address" class="col-form-label">Address</label>
+                            <input type="text" asp-for="Address" class="form-control" />
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label asp-for="PhoneNumber" class="col-form-label">Phone Number</label>
+                            <input type="tel" asp-for="PhoneNumber" class="form-control" />
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label class="col-form-label required">Gender </label>
+                            <select asp-for="SelectedGender" asp-items="genderList" class="form-control" style="height:50%">
+                                <option disabled>Please select an option</option>
+                            </select>
+                            <span asp-validation-for="SelectedGender" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label class="col-form-label required">Role </label>
+                            <select asp-for="SelectedRole" asp-items="roleList" class="form-control">
+                                <option disabled>Please select an option</option>
+                            </select>
+                            <span asp-validation-for="SelectedRole" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label class="col-form-label required" asp-for="Departments">Department </label>
+                            <select asp-for="SelectedDepartment" asp-items="departmentList" class="form-control">
+                                <option disabled>Please select an option</option>
+                            </select>
+                            <span asp-validation-for="SelectedDepartment" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label asp-for="Note">Note</label>
+                            <textarea asp-for="Note" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="col-form-label" asp-for="IsActive">Status</label>
+                            <input type="text" class="form-control" readonly value="@(Model.IsActive ? "Active" : "Inactive")" />
+                        </div>
+
+                    </div>
+                    <div style="float: right">
+                        <button class="btn btn-success mr-3" type="submit">Submit</button>
+                        <a asp-controller="Account" asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

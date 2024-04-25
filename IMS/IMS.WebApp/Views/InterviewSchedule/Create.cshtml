@@ -1,0 +1,150 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model CreateInterviewScheduleVM
+@using Microsoft.AspNetCore.Identity
+@using IMS.Models;
+@inject SignInManager<User> SignInManager
+@{
+	SelectList JobList = new SelectList(Model.Jobs, nameof(Job.JobId), nameof(Job.Title));
+	SelectList CandidateList = new SelectList(Model.Candidates, nameof(Candidate.CandidateId), nameof(Candidate.FullName));
+	SelectList InterviewerList = new SelectList(Model.Interviewers.Select(interviewer =>
+		{
+			return new SelectListItem
+				{
+					Value = interviewer.Id.ToString(),
+					Text = $"{interviewer.UserName}"
+				};
+		}),
+		"Value", 
+		"Text"  
+	);
+
+	SelectList RecuiterList = new SelectList(Model.RecruiterOwners.Select(recruiter =>
+		{
+			return new SelectListItem
+					{
+						Value = recruiter.Id.ToString(),
+						Text = $"{recruiter.UserName} - {recruiter.FullName}"
+					};
+		}),
+		"Value",
+		"Text"
+	);
+	ViewData["Title"] = "Create Interview Schedule";
+}
+<partial name="_Notification" />
+<div class="container">
+	<div class="col-12 mt-5">
+		<div class="card">
+			<div class="card-body">
+				<h4 class="header-title">Create new Interview Schedule</h4>
+				<form asp-asp-controller="InterviewSchedule" asp-action="Create" method="post">
+					<div class="form-group">
+					</div>
+					<div class="row">
+						<div class="form-group col-6">
+							<label class="col-form-label required" asp-for="InterviewScheduleTitle">Interview Title</label>
+							<input class="form-control" asp-for="InterviewScheduleTitle" class="form-control" placeholder="Input Interview Schedule Title" autofocus/>
+							<span asp-validation-for="InterviewScheduleTitle" class="text-danger"></span>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label required" asp-for="Jobs">Job</label>
+							<select class="form-control" asp-for="SelectedJob" asp-items="JobList">
+								<option disabled selected>Please select an option</option>
+							</select>
+							<span asp-validation-for="SelectedJob" class="text-danger"></span>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label required" asp-for="Candidates">Candidate</label>
+							<select class="form-control" asp-for="SelectedCandidate" asp-items="CandidateList">
+								<option disabled selected>Please select an option</option>
+							</select>
+							<span asp-validation-for="SelectedCandidate" class="text-danger"></span>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label required" asp-for="SelectedInterviewer">Interviewers</label>
+							<select class="select2 form-control" asp-for="SelectedInterviewer" asp-items="InterviewerList" ></select>
+							<span asp-validation-for="SelectedInterviewer" class="text-danger  select2_validation"></span>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label required" asp-for="ScheduleDate">Schedule Date</label>
+							<input type="date" value="null" class="form-control" asp-for="ScheduleDate"/>
+							<span asp-validation-for="ScheduleDate" class="text-danger"></span>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label required" asp-for="RecruiterOwners">Recruiter Owners</label>
+							<div class ="form-row">
+								<select class="form-control @(User.IsInRole("Recruiter") ? "col-sm-10" : "col-sm-12")" asp-for="SelectedRecruiterOwner" asp-items="RecuiterList" id="recruiterDropdown">
+									<option disabled selected>Please select an option</option>
+								</select>
+								@if (User.IsInRole("Recruiter"))
+								{
+									<button type="button" class="col-sm-2 btn btn-dark " id="assignMe">Assign me</button>
+								}
+							</div>
+							<span asp-validation-for="SelectedRecruiterOwner" class="text-danger"></span>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label">Schedule Time</label>
+							<div class="form-row">
+								<div class="col-sm-1 col-form-label">
+									<label asp-for="ScheduleFrom">From</label>
+								</div>
+								<div class="col-sm-4 ml-3">
+									<input type="time" value="null" class="form-control" asp-for="ScheduleFrom" />
+								</div>
+								<div class="col-sm-1 col-form-label">
+									<label asp-for="ScheduleTo">To</label>
+								</div>
+								<div class="col-sm-4">
+									<input type="time" value="null" class="form-control" asp-for="ScheduleTo" />
+								</div>
+							</div>
+							<span asp-validation-for="ScheduleFrom" class="text-danger"></span>
+						</div>
+						
+						<div class="form-group col-6">
+							<label class="col-form-label" asp-for="Location">Location</label>
+							<input class="form-control" asp-for="Location" class="form-control" placeholder="Input interview location" />
+						</div>
+						<div class="form-group col-6">
+							<label asp-for="Notes">Notes</label>
+							<textarea rows="5" asp-for="Notes" class="form-control" id="Notes"></textarea>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label" asp-for="MeetingId">MeetingId</label>
+							<input class="form-control" asp-for="MeetingId" class="form-control" placeholder="Input GoogleMeet link" />
+						</div>
+					</div>
+					<div class="d-flex justify-content-end mt-2">
+						<button type="submit" id="submitBtn" class="btn btn-success btn-inform mr-3">Submit</button>
+						<a asp-asp-controller="InterviewSchedule" asp-action="Index" class="btn btn-secondary btn-inform">Cancel</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts{
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script>
+		// Add assign me
+		document.getElementById("assignMe").addEventListener("click", function () {
+			var options = document.getElementById("recruiterDropdown").options;
+			var userName = "@User.Identity.Name";
+			for (var i = 0; i < options.length; i++) {
+				var optionValue = options[i].text.split(" - ")[0];
+				console.log("The option value is:", optionValue);
+				if (optionValue === userName) {
+					options[i].selected = true;
+					break;
+				}
+			}
+		});
+	</script>	
+}

@@ -1,0 +1,184 @@
+﻿@model OfferVM
+@using IMS.Utilities.Constants
+@{
+    string ManagerValue = Model.Manager.UserName + " - " + Model.Manager.FullName;
+    string RecruiterValue = Model.Recruiter.UserName + " - " + Model.Recruiter.FullName;
+    var BasicSalaryValue = string.Format("{0:N0}", Model.BasicSalary);
+    string interviewNote = Model.InterviewSchedule.Notes == null ? "N/A" : Model.InterviewSchedule.Notes;
+    string NoteValue = Model.Note == null ? "N/A" : Model.Note;
+
+    ViewData["Title"] = "View Offer Details";
+}
+@{
+    ViewData["Title"] = "Offer Detail";
+}
+<div class="container">
+    <div class="col-12 mt-5">
+        <div class="d-flex justify-content-end py-2 px-3">
+            <span class="small" style="margin-right:20px">
+                Created on: <span style="color: blue">@Model.CreatedOn.ToString("dd/MM/yyyy")</span>
+                | Last updated by: <u>@Model.LastUpdatedBy</u>
+                on
+                @if (Model.LastUpdatedOn.Date == DateTime.UtcNow.Date)
+                {
+                    @:today
+                }
+                else
+                {
+                    <span style="color: blue">@Model.LastUpdatedOn.ToString("dd-MM-yyyy")</span>
+                }
+            </span>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Offer details</h4>
+                <div class="text-right">
+
+                    @if (Model.Status == OfferStatus.WaitingForApproval)
+                    {
+                        @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
+                        {
+                            <a class="btn btn-success text-white mr-3" href="@Url.Action("ApproveRejectOffer", "Offer", new { offerId = ViewContext.RouteData.Values["id"], status = OfferStatus.Approved })">
+                                Approve
+                            </a>
+                            <a class="btn btn-danger text-white mr-3" href="@Url.Action("ApproveRejectOffer", "Offer", new { offerId = ViewContext.RouteData.Values["id"], status = OfferStatus.Rejected })">
+                                Reject
+                            </a>
+                        }
+                    }
+                    else if (Model.Status == OfferStatus.Approved)
+                    {
+                        <a class="btn btn-info text-white mr-3" href="@Url.Action("UpdateStatus", "Offer", new { offerId = ViewContext.RouteData.Values["id"], status = OfferStatus.WaitingForResponse })">
+                            Mark as sent to candidate
+                        </a>
+                    }
+                    else if (Model.Status == OfferStatus.WaitingForResponse)
+                    {
+                        <a class="btn btn-success text-white mr-3" href="@Url.Action("UpdateStatus", "Offer", new { offerId = ViewContext.RouteData.Values["id"], status = OfferStatus.AcceptedOffer })">
+                            Accepted Offer
+                        </a>
+                        <a class="btn btn-danger text-white mr-3" href="@Url.Action("UpdateStatus", "Offer", new { offerId = ViewContext.RouteData.Values["id"], status = OfferStatus.DeclinedOffer })">
+                            Declined Offer
+                        </a>
+                    }
+                    @if (Model.Status != OfferStatus.Rejected && Model.Status != OfferStatus.DeclinedOffer &&
+                    Model.Status != OfferStatus.Cancelled)
+                    {
+                        <a class="btn btn-danger text-white" data-toggle="modal" data-target="#CancelOffer">Cancel Offer</a>
+                    }
+
+                </div>
+                <div class="row">
+                    <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="Candidate.FullName">Candidates</label>
+                        <input type="text" class="form-control " readonly asp-for="Candidate.FullName" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="ContractType.ContractTypeTitle">Contract Type</label>
+                        <input class="form-control " asp-for="ContractType.ContractTypeTitle" readonly />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="Position.PositionName">Position</label>
+                        <input class="form-control " asp-for="Position.PositionName" readonly />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="Level.LevelName">Level</label>
+                        <input class="form-control " asp-for="Level.LevelName" readonly />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="Manager">Approver</label>
+                        <input class="form-control" readonly value="@ManagerValue" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="Department.DepartmentName">Department</label>
+                        <input class="form-control" readonly asp-for="Department.DepartmentName" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label select-option" asp-for="InterviewSchedule">Interview</label>
+                        <div class="form-control" style="background-color: #e9ecef; opacity: 1;">
+                            @Model.InterviewSchedule.Title
+                            <br />
+                            Interviewer: @string.Join(", ", Model.Interviewer.Select(s => s.UserName))
+                        </div>
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label" asp-for="Recruiter">Recruiter Owner</label>
+                        <input class="form-control" value="@RecruiterValue" readonly />
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="col-form-label">Contract Period</label>
+                        <div class="form-row">
+                            <div class="col-sm-2 col-form-label">
+                                <label asp-for="ContractFrom">From</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="date" class="form-control" id="startDateInput" asp-for=" ContractFrom" readonly />
+                            </div>
+                            <div class="col-sm-2 col-form-label">
+                                <label asp-for="ContractTo">To</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="date" class="form-control" id="endDateInput" asp-for="ContractTo" readonly />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-6">
+                        <label asp-for="DueDate">Due Date</label>
+                        <input type="date" class="form-control" asp-for="DueDate" readonly />
+                    </div>
+
+                    <div class="form-group col-6">
+                        <label asp-for="InterviewSchedule.Notes">Interview Notes</label>
+                        <div id="InterviewInfo">
+                            <div id="InterviewInfo">
+                                <textarea rows="3" class="form-control" readonly>@interviewNote</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="Note">Notes</label>
+                        <textarea rows="3" class="form-control " readonly>@NoteValue</textarea>
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="BasicSalary">Basic Salary (VND)</label>
+                        <input type="text" class="form-control" value="@BasicSalaryValue" readonly />
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="Status">Status</label>
+                        <input type="text" class="form-control" value="@Html.DisplayFor(modelItem => Model.Status)" readonly />
+                    </div>
+                    
+
+                </div>
+                <div class="d-flex justify-content-end mt-2">
+                    @if (Model.Status == OfferStatus.WaitingForApproval)
+                    {
+                        <a asp-controller="Offer" asp-action="Edit" asp-route-id="@Model.OfferId" class="btn btn-info btn-inform mr-3 btn-font-size"><i class="fa fa-pencil-square-o mr-1"></i>Edit</a>
+                    }
+                    <a asp-controller="Offer" asp-action="Index" class="btn btn-secondary btn-font-size btn-inform">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="CancelOffer">
+
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel offer</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this offer?</p>
+            </div>
+            <div class="modal-footer">
+                <a href="@Url.Action("UpdateStatus", "Offer", new { offerId = ViewContext.RouteData.Values["id"], status = OfferStatus.Cancelled })" class="btn btn-primary">Yes</a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>               
+            </div>
+        </div>
+    </div>
+</div>

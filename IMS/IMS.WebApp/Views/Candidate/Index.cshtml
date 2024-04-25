@@ -1,0 +1,120 @@
+﻿@model IEnumerable<CandidateViewModel>
+@using IMS.Models
+@using IMS.Utilities
+@using IMS.Utilities.Constants
+<partial name="_Notification" />
+@{
+	ViewData["Title"] = "Candidate - Index";
+}
+
+<div class="row">
+	<!-- Striped table start -->
+	<div class="col-12 mt-5">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="mb-2">Candidate</h3>
+				<h5 class="font-weight-light mb-2">Candidate list</h5>
+				<div class="single-table">
+					<div class="table-responsive">
+						<div>
+							<div id="candidateFilter" class="d-flex justify-content-md-start align-items-center m-3">
+								<div class="mx-5">
+									<select id="statusSelect" name="status" class="form-control filter-select">
+										<option value="">All Statuses</option>
+										@foreach (var status in Enum.GetValues(typeof(CandidateStatus)).Cast<CandidateStatus>())
+										{
+											<option value="@status">@Html.DisplayFor(modelItem => status)</option>
+										}
+									</select>
+								</div>
+								@if (!User.IsInRole("Interviewer"))
+								{
+									<div class="ml-auto">
+										<a asp-controller="Candidate" asp-action="Create" class="btn btn-success btn-sm"><i class="fa fa-plus"></i> <span>Add New Candidate</span></a>
+									</div>
+								}
+							</div>
+						</div>
+
+						<table id="CandidateTable" class="table table-striped text-center">
+							<thead>
+								<tr>
+									<th class="text-center">Name</th>
+									<th class="text-center">Email</th>
+									<th class="text-center">Phone No.</th>
+									<th class="text-center">Current Position</th>
+									<th class="text-center">Owner HR</th>
+									<th class="text-center">Status</th>
+									<th class="text-center">Action</th>
+								</tr>
+							</thead>
+							<tbody id="candidateTableBody">
+								@foreach (var candidate in Model)
+								{
+									<tr>
+										<td>@candidate.Candidate.FullName</td>
+										<td>@candidate.Candidate.Email</td>
+										<td style="text-align : center">@((candidate.Candidate.PhoneNumber == null) ? "" : @candidate.Candidate.PhoneNumber)</td>
+										<td>@candidate.Position.PositionName</td>
+										<td>@candidate.User.FullName</td>
+										<td>@Html.DisplayFor(modelItem => candidate.Candidate.Status)</td>
+										<td>
+											<a asp-controller="Candidate" asp-action="Details" asp-route-id="@candidate.Candidate.CandidateId">
+												<i class="fa fa-eye"></i>
+											</a>
+											@if (!User.IsInRole("Interviewer"))
+											{
+												<a asp-controller="Candidate" asp-action="Edit" asp-route-id="@candidate.Candidate.CandidateId">
+													<i class="fa fa-pencil-square-o"></i>
+												</a>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Striped table end -->
+</div>
+
+@section Scripts {
+	<!-- Include necessary scripts here -->
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript">
+		function submitForm(selectElement) {
+			document.getElementById("candidateFilterForm").submit();
+		}
+
+	</script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			var table = $('#CandidateTable').DataTable({
+				"pagingType": "full_numbers",
+				"lengthChange": false,
+				"buttons": ['pageLength', 'colvis', 'csv', 'excel', 'pdf']
+			});
+			$('#candidateFilter').insertAfter('.dataTables_filter');
+
+			// Handle change event for status
+			$('#statusSelect').on('change', function () {
+				var status = $('#statusSelect').find('option:selected').text();
+
+				// Check the values of status
+				if (status == 'All Statuses') {
+					status = '';
+				}
+				// Apply filters for status values
+				$('#CandidateTable').DataTable().column(5).search(status).draw();
+			});
+
+			$('.dataTables_filter').css({ "float": "left" });
+
+		});
+	</script>
+}

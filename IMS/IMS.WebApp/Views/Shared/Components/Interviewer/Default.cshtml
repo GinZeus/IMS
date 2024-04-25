@@ -1,0 +1,8 @@
+﻿@model IEnumerable<User>
+<select id="interviewerSelect" class="form-control filter-select" name="InterviewerId">
+    <option value="" >All Interviewers</option>
+    @foreach(var interviewer in Model)
+    {
+        <option value="@interviewer.FullName" >@interviewer.FullName</option>
+    }
+</select>

@@ -1,0 +1,98 @@
+﻿@model UserViewModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> _userManager
+<partial name="_Notification" />
+
+@{
+    ViewData["Title"] = "Account - Index";
+}
+
+<div class="row">
+    <!-- Striped table start -->
+    <div class="col-12 mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="mb-2">User Management</h3>
+                <h5 class="font-weight-light mb-2">User list</h5>
+                <div class="single-table">
+                    <div class="table-responsive">
+                        <div class="d-flex justify-content-between align-items-center mt-5 " id="FormerGroup" >
+                            <div>
+                                <select id="roleSelect" class="form-control text-center" style="width:100%;height:10%;border-color:#aaa;">
+                                    <option value="">All Roles</option>
+                                    @foreach (var role in Model.Roles)
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                </select>
+
+                            </div>
+                            <a asp-controller="Account" asp-action="Create" class="btn btn-success mr-2 "><i class="fa fa-plus"></i> <span>Add New User</span></a>
+
+                        </div>
+
+                        <table id="UserTable" class="table table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">UserName</th>
+                                    <th class="text-center">Email</th>
+                                    <th class="text-center">Phone No.</th>
+                                    <th class="text-center">Role</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model.User)
+                                {
+                                    <tr>
+                                        <td>@user.UserName</td>
+                                        <td>@user.Email</td>
+                                        <td>@user.PhoneNumber</td>
+                                        <td>@((await _userManager.GetRolesAsync(user)).FirstOrDefault())</td>
+                                        <td>@(user.IsActive ? "Active" : "Inactive")</td>
+                                        <td>
+                                            <a asp-controller="Account" asp-action="Detail" asp-route-id="@user.Id">
+                                                <i class="fa fa-eye fa-lg"></i>
+                                            </a>
+                                            <a asp-controller="Account" asp-action="Edit" asp-route-id="@user.Id">
+                                                <i class="fa fa-pencil-square-o fa-lg"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Striped table end -->
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#UserTable').DataTable({
+                "pagingType": "full_numbers", // Use full pagination controls
+                "lengthChange": false, // Disable length change
+                "buttons": ['pageLength', 'colvis', 'csv', 'excel', 'pdf'], // Add Buttons extension buttons
+            });
+            $('#FormerGroup').insertAfter('.dataTables_filter');
+            $('#roleSelect').on('change', function () {
+                var role = $(this).val();
+                $('#UserTable').DataTable().column(3).search(role).draw();
+            });
+
+
+            $('.dataTables_filter').css({ "float": "left", "margin-right": "60px", "margin-bottom": "20px" });
+        });
+
+    </script>
+
+}

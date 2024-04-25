@@ -1,0 +1,56 @@
+﻿@using IMS.CoreServices
+@using Microsoft.AspNetCore.Identity;
+@using IMS.Models;
+@using IMS.Utilities.Constants;
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager 
+@inject IDepartmentService _departmentService;
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+    var department = _departmentService.GetDepartmentById(user.DepartmentId);
+
+    <div class="user-profile pull-right">
+        @if (user.Gender == Gender.Male)
+        {
+            <img class="avatar user-thumb" src="~/images/author/male_avatar.png" alt="avatar">
+        }else
+        {
+            <img class="avatar user-thumb" src="~/images/author/female_avatar.png" alt="avatar">
+        }
+        <div>
+            <h4 class="user-name" >@User.Identity.Name </h4>
+            <p>@department.DepartmentName Department</p>
+        </div>
+        <i class="fa fa-power-off" data-toggle="modal" data-target="#Logout"></i>
+    </div>
+
+    <!-- Logout Modal -->
+    <form class="form-inline" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action()" method="post">
+        <div class="modal fade" id="Logout">
+
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content logout">
+                    <i class="fa fa-sign-out"></i>
+                    <div class="modal-body logout-body">
+                        <h5 class="modal-title">Logout</h5>
+                        <p>Are you sure you want to logout?</p>
+                    </div>
+                    <div class="modal-footer logout-footer mb-4">
+                        <button type="submit" class="btn btn-warning btn-inform">Logout</button>
+                        <button type="button" class="btn btn-secondary btn-inform" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+}
+else
+{
+    <div class="d-flex float-right mt-2 mb-2">
+        @* Future: consider adding returnUrl query string to login link for better UX. So that user may return to previous page after logged in *@
+        <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+    </div>
+    
+}

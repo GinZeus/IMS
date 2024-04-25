@@ -1,0 +1,172 @@
+﻿@model IEnumerable<InterviewScheduleVM>
+@using IMS.Utilities.Constants
+<partial name="_Notification" />
+@{
+    bool isInterviewer = User.IsInRole("Interviewer");
+    ViewData["Title"] = "Interview Schedule - Index";
+}
+
+
+<div class="row">
+    <!-- Striped table start -->
+    <div class="col-12 mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="mb-2">Interview Schedule</h3>
+                <h5 class="font-weight-light mb-2">Interview Schedule List</h5>
+                <div class="single-table mt-5">
+                    <div class="table-responsive">
+                        <div>
+  
+
+                            <div id="InterviewFilterForm" class="d-flex justify-content-md-start mt-1">
+                                <div class="mx-5">
+                                    <select id="statusSelect" class="form-control filter-select" name="status">
+                                        <option value="">All Statuses</option>
+                                        @foreach (var status in Enum.GetValues(typeof(InterviewScheduleStatus)).Cast<InterviewScheduleStatus>())
+                                        {
+                                            <option value="@status">@status</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div>
+                                    @await Component.InvokeAsync("Interviewer")
+                                </div>
+                                <div class="ml-auto">
+                                    @if (!isInterviewer)
+                                    {
+                                        <a asp-controller="InterviewSchedule" asp-action="Create" class="btn btn-success"><i class="fa fa-plus"></i> Create new interview</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <table id="InterviewScheduleTable" class="table table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Interview Title</th>
+                                    <th class="text-center">Candidate</th>
+                                    <th class="text-center">Interviewer</th>
+                                    <th class="text-center">Result</th>
+                                    <th class="text-center">Schedule</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Job</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var schedule in Model)
+                                {
+                                    var isCancelled = schedule.InterviewSchedule.Status == InterviewScheduleStatus.Cancelled;
+                                    <tr>
+                                        <td>@schedule.InterviewSchedule.Title</td>
+                                        <td>@schedule.Candidate.FullName</td>
+                                        <td>
+                                            @{
+                                                var interviewers = string.Join(", ", schedule.Interviewers.Select(interviewer => interviewer.FullName));
+                                                @interviewers
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                if (!schedule.InterviewSchedule.Result.HasValue)
+                                                {
+                                                    @:N/A
+                                                }
+                                                else if (schedule.InterviewSchedule.Result == true)
+                                                {
+                                                    @:Passed
+                                                }
+                                                else
+                                                {
+                                                    @:Failed
+                                                }
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                var date = schedule.InterviewSchedule.DueDate;
+                                                var startTime = schedule.InterviewSchedule.StartTime;
+                                                var endTime = schedule.InterviewSchedule.EndTime;
+                                                var formattedDueDate = date.ToString("dd/MM/yyyy");
+                                                var formattedStartTime = startTime.HasValue ? startTime.Value.ToString("HH:mm") : "N/A";
+                                                var formattedEndTime = endTime.HasValue ? endTime.Value.ToString("HH:mm") : "N/A";
+                                            }
+                                            @formattedDueDate @formattedStartTime - @formattedEndTime
+                                        </td>
+
+                                        <td>@schedule.InterviewSchedule.Status</td>
+                                        <td>@schedule.Job.Title</td>
+                                        <td>
+                                            <a asp-controller="InterviewSchedule" asp-action="Detail" asp-route-id="@schedule.InterviewSchedule.InterviewScheduleId">
+                                                <i class="fa fa-eye fa-lg"></i>
+                                            </a>
+                                            @if (isInterviewer && !isCancelled)
+                                            {
+                                                <a asp-controller="InterviewSchedule" asp-action="SubmitResult" asp-route-id="@schedule.InterviewSchedule.InterviewScheduleId">
+                                                    <i class="fa fa-check-square fa-lg"></i>
+                                                </a>
+
+                                            }
+                                            @if (!isInterviewer && !isCancelled)
+                                            {
+                                                <a asp-controller="InterviewSchedule" asp-action="Edit" asp-route-id="@schedule.InterviewSchedule.InterviewScheduleId">
+                                                    <i class="fa fa-pencil-square-o fa-lg"></i>
+                                                </a>
+
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Striped table end -->
+</div>
+
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#InterviewScheduleTable').DataTable({
+                "pagingType": "full_numbers",
+                "lengthChange": false,
+                "buttons": ['pageLength', 'colvis', 'csv', 'excel', 'pdf']
+            });
+
+
+            // Position the status select box next to the search box
+            $('#InterviewFilterForm').insertAfter('.dataTables_filter');
+
+            // Handle change event for both status and interviewer
+            $('#statusSelect, #interviewerSelect').on('change', function () {
+                var status = $('#statusSelect').find('option:selected').text();
+                var interviewer = $('#interviewerSelect').find('option:selected').text();
+                
+                // Check the values of status and interviewer
+                if (status == 'All Statuses') {
+                    status = '';
+                }
+                if (interviewer == 'All Interviewers') {
+                    interviewer = '';
+                }
+                // Apply filters for both status and interviewer values
+                $('#InterviewScheduleTable').DataTable().column(5).search(status).column(2).search(interviewer).draw();
+            });
+
+            $('.dataTables_filter').css({ "float": "left", "margin-bottom": "15px" });
+        });
+
+
+    </script>
+}
+
+
+
+

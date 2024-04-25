@@ -1,0 +1,156 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model SubmitResultVM
+@using Microsoft.AspNetCore.Identity
+@using IMS.Models;
+@inject SignInManager<User> SignInManager
+@{
+	SelectList JobList = new SelectList(Model.Jobs, nameof(Job.JobId), nameof(Job.Title));
+	SelectList CandidateList = new SelectList(Model.Candidates, nameof(Candidate.CandidateId), nameof(Candidate.FullName));
+	SelectList InterviewerList = new SelectList(Model.Interviewers.Select(interviewer =>
+		{
+			return new SelectListItem
+					{
+						Value = interviewer.Id.ToString(),
+						Text = $"{interviewer.UserName}"
+					};
+		}),
+		"Value",
+		"Text"
+	);
+
+	SelectList RecuiterList = new SelectList(Model.RecruiterOwners.Select(recruiter =>
+		{
+			return new SelectListItem
+					{
+						Value = recruiter.Id.ToString(),
+						Text = $"{recruiter.UserName} - {recruiter.FullName}"
+					};
+		}),
+		"Value",
+		"Text"
+	);
+	ViewData["Title"] = "Submit Interview Result";
+}
+
+
+<div class="container">
+	<div class="col-12 mt-4 ">
+		<div class="d-flex justify-content-end py-2 px-3">
+			<span class="small">
+				Created on:<span style="color: blue"> @Model.CreatedOn.ToString("dd-MM-yyyy")</span>
+				| Last updated by: <u>@Model.LastUpdatedBy</u>
+				on
+				@if (@Model.LastUpdatedOn.Date == DateTime.UtcNow.Date)
+				{
+					@:today
+				}
+				else
+				{
+					<span style="color: blue">@Model.LastUpdatedOn.ToString("dd-MM-yyyy")</span>
+				}
+			</span>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<div>
+					<h4 class="header-title">Submit Interview Result:</h4>
+				</div>
+				<form asp-asp-controller="InterviewSchedule" asp-action="SubmitResult" method="post">
+					<input type="hidden" asp-for="InterviewScheduleId" />
+					<div class="row">
+						<div class="form-group col-6">
+							<label class="col-form-label" asp-for="InterviewScheduleTitle">Interview Title</label>
+							<input class="form-control" asp-for="InterviewScheduleTitle" class="form-control" placeholder="Input Interview Schedule Title" readonly />
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label" asp-for="Jobs">Jobs</label>
+							<select class="form-control" asp-for="SelectedJob" asp-items="JobList" disabled>
+								<option disabled>Please select an option</option>
+							</select>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label" asp-for="Candidates">Candidates</label>
+							<select class="form-control" asp-for="SelectedCandidate" asp-items="CandidateList" disabled>
+								<option disabled>Please select an option</option>
+							</select>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label" asp-for="SelectedInterviewer">Interviewers</label>
+							<select id="multiInterviewer" class="form-control" asp-for="SelectedInterviewer" asp-items="InterviewerList" disabled></select>
+						</div>
+						<div class="form-group col-6">
+                            <label asp-for="ScheduleDate" class="col-form-label">Schedule Date</label>
+							<input type="date" class="form-control" asp-for="ScheduleDate" readonly />
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label" asp-for="RecruiterOwners">RecruiterOwners</label>
+							<select class="form-control" asp-for="SelectedRecruiterOwner" asp-items="RecuiterList" id="recruiterDropdown" disabled>
+								<option disabled>Please select an option</option>
+							</select>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label">Schedule Time</label>
+							<div class="form-row">
+								<div class="col-sm-2 col-form-label">
+									<label asp-for="ScheduleFrom">From</label>
+								</div>
+								<div class="col-sm-4">
+									<input type="time" class="form-control" asp-for="ScheduleFrom" readonly />
+								</div>
+								<div class="col-sm-2 col-form-label">
+									<label asp-for="ScheduleTo">To</label>
+								</div>
+								<div class="col-sm-4">
+									<input type="time" class="form-control" asp-for="ScheduleTo" readonly />
+								</div>
+							</div>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label" asp-for="Location">Location</label>
+							<input class="form-control" asp-for="Location" class="form-control" placeholder="Input interview location" readonly />
+						</div>
+						<div class="form-group col-6">
+							<label asp-for="Notes">Notes</label>
+							<textarea rows="5" asp-for="Notes" class="form-control"></textarea>
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label" asp-for="MeetingId">MeetingId</label>
+							<input class="form-control" asp-for="MeetingId" class="form-control" placeholder="Input GoogleMeet link" readonly />
+							<label class="col-form-label" asp-for="Status">Status</label>
+							<input class="form-control" asp-for="Status" class="form-control" readonly />
+						</div>
+						<div class="form-group col-6">
+							<label class="col-form-label required" asp-for="Result">Result</label>
+							<select asp-for="Result" class="form-control ">
+								<option disabled selected>N/A</option>
+								<option value="True" >Passed</option>
+								<option value="False" >Failed</option>
+							</select>
+							<span asp-validation-for="Result" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="d-flex justify-content-end mt-2">
+						<button type="submit" id="submitBtn" class="btn btn-success btn-inform mr-3">Submit</button>
+						<a type="reset" asp-controller="InterviewSchedule" asp-action="Index" class="btn btn-secondary btn-inform">Cancel</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+	<script>
+		// Add multiselect select2
+		$(document).ready(function () {
+
+			$('#multiInterviewer').select2({
+				placeholder: 'Select an option',
+			});
+
+		});
+	</script>
+}

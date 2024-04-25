@@ -1,0 +1,11 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@using IMS.Models;
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+<partial name="_Notification" />
+@if (!SignInManager.IsSignedIn(User))
+{
+     <div class="">
+        <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+    </div>    
+}

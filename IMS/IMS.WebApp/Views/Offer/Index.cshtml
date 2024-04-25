@@ -1,0 +1,200 @@
+﻿@model IEnumerable<ListOfferVM>
+@using IMS.Utilities.Constants
+@{
+    ViewData["Title"] = "Offer List";
+}
+<partial name="_Notification" />
+
+@{
+    ViewData["Title"] = "Offer - Index";
+}
+
+<div class="row">
+    <!-- Striped table start -->
+    <div class="col-12 mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="mb-2">Offer</h3>
+                <h5 class="font-weight-light mb-2">Offer List</h5>
+                <div class="single-table">
+                    <div class="table-responsive">
+                        <div>
+                            <div id="offerFilter" class="d-flex justify-content-md-start align-items-center m-3">
+                                <div class="mx-5">
+                                    <select id="statusSelect" class="form-control filter-select" name="status">
+                                        <option value="">All Statuses</option>
+                                        @foreach (var status in Enum.GetValues(typeof(OfferStatus)).Cast<OfferStatus>())
+                                        {
+                                            <option value="@status.ToString()">@Html.DisplayFor(modelItem => status)</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div>
+                                    @await Component.InvokeAsync("Department")
+                                </div>
+                                <div class="ml-auto">
+                                    <a asp-controller="Offer" asp-action="Create" class="btn btn-success btn-inform mr-3">
+                                        <i class="fa fa-plus"></i> Create
+                                    </a>
+                                    <a data-toggle="modal" data-target="#ExportOffer" class="btn btn-primary text-white btn-inform">
+                                        <i class="fa fa-download"></i> Export
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table id="OfferTable" class="table table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Candidate Name</th>
+                                    <th class="text-center">Email</th>
+                                    <th class="text-center">Approver</th>
+                                    <th class="text-center">Department</th>
+                                    <th class="text-center">Notes</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="offerTableBody">
+                                @foreach (var offer in Model)
+                                {
+                                    <tr>
+                                        <td>@offer.Candidate.FullName</td>
+                                        <td>@offer.Candidate.Email</td>
+                                        <td>@offer.Approver.FullName</td>
+                                        <td>@offer.Department.DepartmentName</td>
+                                        <td>@(offer.Offer.Notes == null ? "N/A" : @offer.Offer.Notes)</td>
+                                        <td>@Html.DisplayFor(modelItem => offer.Offer.Status)</td>
+                                        <td>
+                                            <a asp-controller="Offer" asp-action="Detail" asp-route-id="@offer.Offer.OfferId">
+                                                <i class="fa fa-eye fa-lg"></i>
+                                            </a>
+                                            @if (offer.Offer.Status == OfferStatus.WaitingForApproval)
+                                            {
+                                                <a asp-controller="Offer" asp-action="Edit" asp-route-id="@offer.Offer.OfferId">
+                                                    <i class="fa fa-pencil-square-o fa-lg"></i>
+                                                </a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Striped table end -->
+</div>
+
+
+<div class="modal fade" id="ExportOffer">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export offer</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body row">
+                <div class="col-sm-2 col-form-label">
+                    <label>From: </label>
+                </div>
+                <div class="col-sm-4">
+                    <input id="startDateInput" name="startDate" type="date" value="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")" class="form-control" />
+                </div>
+                <div class="col-sm-2 col-form-label">
+                    <label>To: </label>
+                </div>
+                <div class="col-sm-4">
+                    <input id="endDateInput" name="endDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" />
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button id="submitBtn" type="submit" class="btn btn-primary">
+                    Submit</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#OfferTable').DataTable({
+                "pagingType": "full_numbers",
+                "lengthChange": false,
+                "buttons": ['pageLength', 'colvis', 'csv', 'excel', 'pdf']
+            });
+
+
+            // Position the status select box next to the search box
+            $('#offerFilter').insertAfter('.dataTables_filter');
+
+            // Handle change event for both status and department
+            $('#statusSelect, #departmentSelect').on('change', function () {
+                var status = $('#statusSelect').find('option:selected').text();
+                var department = $('#departmentSelect').find('option:selected').text();
+
+                // Check the values of status and department
+                if (status == 'All Statuses') {
+                    status = '';
+                }
+                if (department == 'All Departments') {
+                    department = '';
+                }
+
+                // Apply filters for both status and department values
+                $('#OfferTable').DataTable().column(5).search(status).column(3).search(department).draw();
+            });
+
+            $('.dataTables_filter').css({ "float": "left", "margin-bottom": "5px" });
+        });
+
+    </script>
+    <script>
+        $('#submitBtn').click(function () {
+            // Get startDate and endDate from Modal
+            var startdate = $('#startDateInput').val();
+            var enddate = $('#endDateInput').val();
+            if (enddate < startdate) {
+                toastr.warning('To date is invalid. To date must be after From date. Please try again!');
+
+            } else {
+                $.ajax({
+                    url: '/Offer/GetOfferByDueDateAjax',
+                    type: 'GET',
+                    data: {
+                        startdate: startdate,
+                        enddate: enddate
+                    },
+                    success: function (data) {
+                        //if no offer then display message "No offer selected"
+                        if (data.length === 0) {
+                            toastr.warning('No offer on the selected date');
+                            return false;
+                        } else {
+                            // Convert array offer to Json
+                            var jsonOffers = JSON.stringify(data);
+                            var url = '/Offer/ExportOffer?offers=' + encodeURIComponent(jsonOffers) +
+                                '&startDate=' + encodeURIComponent(startdate) +
+                                '&endDate=' + encodeURIComponent(enddate);
+                            window.location.href = url;
+
+
+                        }
+                    }
+                });
+            }
+
+
+        });
+    </script>
+}

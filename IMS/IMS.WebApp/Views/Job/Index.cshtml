@@ -1,0 +1,147 @@
+﻿@model IEnumerable<JobViewModel>
+@using IMS.Utilities.Constants
+<partial name="_Notification" />
+
+@{
+    ViewData["Title"] = "Job - Index";
+    bool isInterviewer = User.IsInRole("Interviewer");
+}
+<div class="row">
+    <!-- Striped table start -->
+    <div class="col-12 mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="mb-2">Job Management</h3>
+                <h5 class="font-weight-light mb-2">Job list</h5>
+                <div class="single-table">
+                    <div class="table-responsive">                      
+                        <div>
+                            <div id="jobFilter" class="d-flex justify-content-md-start align-items-center m-3">
+                                <div class="mx-5">
+                                    <select id="statusSelect" class="form-control filter-select" name="status">
+                                        <option value="">All Statuses</option>
+                                        @foreach (var status in Enum.GetValues(typeof(JobStatus)).Cast<JobStatus>())
+                                        {
+                                            <option value="@status">@status</option>
+                                        }
+                                    </select>
+                                </div>    
+                                @if (!User.IsInRole("Interviewer"))
+                                {
+                                    <div class="ml-auto">
+                                        <a asp-controller="Job" asp-action="Create" class="btn btn-success mr-3">
+                                            <i class="fa fa-plus"></i> Create Job
+                                        </a>
+                                        <button type="button" class="btn btn-outline-dark" style="cursor: pointer" data-toggle="modal" data-target="#ImportJob">
+                                            <i class="fa fa-upload"></i> Import Job
+                                        </button>
+                                    </div>
+                                }
+                                
+                            </div>
+                        </div>
+
+                        <table id="JobTable" class="table table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Job Title</th>
+                                    <th class="text-center">Required Skills</th>
+                                    <th class="text-center">Start Date</th>
+                                    <th class="text-center">End Date</th>
+                                    <th class="text-center">Level</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var job in Model)
+                                {
+                                    <tr>
+                                        <td>@job.Job.Title</td>
+                                        <td>@string.Join(", ", job.Skills.Select(s => s.SkillName))</td>
+                                        <td>@job.Job.StartDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@job.Job.EndDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@string.Join(", ", job.Levels.Select(s => s.LevelName))</td>
+                                        <td>@job.Job.Status</td>
+                                        <td>
+                                            <a asp-controller="Job" asp-action="Detail" asp-route-id="@job.Job.JobId">
+                                                <i class="fa fa-eye fa-lg"></i>
+                                            </a>
+                                            @if(!isInterviewer){
+                                                <a asp-controller="Job" asp-action="Edit" asp-route-id="@job.Job.JobId">
+                                                    <i class="fa fa-pencil-square-o fa-lg"></i>
+                                                </a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Striped table end -->
+</div>
+<!-- Modal for Import new Job-->
+<form enctype="multipart/form-data" class="form-inline" asp-action="Import" asp-controller="Job">
+    <div class="modal fade" id="ImportJob">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create new Job</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Create new job by excel file</p>
+
+                    <input id="jobList" name="jobList" type="file" accept=".xlsx" class="form-control"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#JobTable').DataTable({
+                "pagingType": "full_numbers",
+                "lengthChange": false,
+                "buttons": ['pageLength', 'colvis', 'csv', 'excel', 'pdf']
+            });
+
+            // Position the status select box next to the search box
+            $('#jobFilter').insertAfter('.dataTables_filter');
+
+            // Handle change event for status
+            $('#statusSelect').on('change', function () {
+                var status = $('#statusSelect').find('option:selected').text();
+
+                // Check the values of status and department
+                if (status == 'All Statuses') {
+                    status = '';
+                }
+                // Apply filters for status values
+                $('#JobTable').DataTable().column(5).search(status).draw();
+            });
+
+            $('.dataTables_filter').css({ "float": "left"});
+        });
+    </script>
+    <script type="text/javascript">
+        function submitForm(selectElement) {
+            document.getElementById("jobFilterForm").submit();
+        }
+
+    </script>
+}
+

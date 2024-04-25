@@ -1,0 +1,290 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model CreateOfferVM
+@using Microsoft.AspNetCore.Identity
+@using IMS.Models;
+@inject SignInManager<User> SignInManager
+@{
+    SelectList ContractTypeList = new SelectList(Model.ContractTypes, nameof(ContractType.ContractTypeId), nameof(ContractType.ContractTypeTitle));
+    SelectList CandidateList = new SelectList(Model.Candidates, nameof(Candidate.CandidateId), nameof(Candidate.FullName));
+    SelectList PositionList = new SelectList(Model.Positions, nameof(Position.PositionId), nameof(Position.PositionName));
+    SelectList LevelList = new SelectList(Model.Levels, nameof(Level.LevelId), nameof(Level.LevelName));
+    SelectList DepartmentList = new SelectList(Model.Departments, nameof(Department.DepartmentId), nameof(Department.DepartmentName));
+
+    SelectList ManagerList = new SelectList(Model.Manager.Select(manager =>
+        {
+            return new SelectListItem
+                    {
+                        Value = manager.Id.ToString(),
+                        Text = $"{manager.UserName} - {manager.FullName}"
+                    };
+        }),
+        "Value",
+        "Text"
+    );
+    SelectList RecuiterList = new SelectList(Model.Recruiter.Select(recruiter =>
+        {
+            return new SelectListItem
+                    {
+                        Value = recruiter.Id.ToString(),
+                        Text = $"{recruiter.UserName} - {recruiter.FullName}"
+                    };
+        }),
+        "Value",
+        "Text"
+    );
+    
+}
+@{
+    ViewData["Title"] = "Create New Offer";
+}
+<partial name="_Notification" />
+<div class="container">
+    <div class="col-12 mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Create new Offer</h4>
+                <form asp-asp-controller="Offer" asp-action="Create" method="post">
+                    <div class="form-group">
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-6">
+                            <label class="col-form-label required" asp-for="SelectedCandidate">Candidates</label>
+                            <select class="form-control select-option select-candidate" asp-for="SelectedCandidate" asp-items="CandidateList" onchange="loadInterviewSchedules(this.value)">
+                                <option value="" disabled selected>Please select an option</option>
+                            </select>
+                            <span asp-validation-for="SelectedCandidate" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="col-form-label required" asp-for="SelectedContractTypes">Contract Type</label>
+                            <select class="form-control" asp-for="SelectedContractTypes" asp-items="ContractTypeList">
+                                <option disabled selected>Please select an option</option>
+                            </select>
+                            <span asp-validation-for="SelectedContractTypes" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="col-form-label required" asp-for="SelectedPosition">Position</label>
+                            <select class="form-control" asp-for="SelectedPosition" asp-items="PositionList">
+                                <option disabled selected>Please select an option</option>
+                            </select>
+                            <span asp-validation-for="SelectedPosition" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="col-form-label required" asp-for="SelectedLevels">Level</label>
+                            <select class="form-control" asp-for="SelectedLevels" asp-items="LevelList">
+                                <option disabled selected>Please select an option</option>
+                            </select>
+                            <span asp-validation-for="SelectedLevels" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="col-form-label required" asp-for="SelectedManager">Approver</label>
+                            <div class="form-row">
+                                <select class="form-control" asp-for="SelectedManager" asp-items="ManagerList" id="managerDropdown">
+                                    <option disabled selected>Please select an option</option>
+                                </select>
+                                <span asp-validation-for="SelectedManager" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="col-form-label required" asp-for="SelectedDepartment">Department</label>
+                            <select class="form-control" asp-for="SelectedDepartment" asp-items="DepartmentList">
+                                <option disabled selected>Please select an option</option>
+                            </select>
+                            <span asp-validation-for="SelectedDepartment" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="col-form-label required " asp-for="SelectedInterviewSchedule">Interview</label>
+                            <select asp-for="SelectedInterviewSchedule" class="form-control select-option" id="Interviews" onchange="getInterviewById(this.value)">
+                            </select>
+                            <span asp-validation-for="SelectedInterviewSchedule" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="col-form-label required" asp-for="SelectedRecruiter">Recruiter Owner</label>
+                            <div class="form-row">
+                                <select class="form-control @(User.IsInRole("Recruiter") ? "col-sm-10" : "col-sm-12")" asp-for="SelectedRecruiter" asp-items="RecuiterList" id="recruiterDropdown">
+                                    <option disabled selected>Please select an option</option>
+                                </select>
+                                @if (User.IsInRole("Recruiter"))
+                                {
+                                    <button type="button" class="col-sm-2 btn btn-dark " id="assignMe">Assign me</button>
+                                }
+                                <span asp-validation-for="SelectedRecruiter" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="col-form-label required">Contract Period</label>
+                            <div class="form-row">
+                                <div class="col-sm-2 col-form-label">
+                                    <label asp-for="ContractFrom">From</label>
+                                </div>
+                                <div class="col-sm-4">
+                                    <input type="date" class="form-control" id="startDateInput" asp-for=" ContractFrom" />
+                                </div>
+                                <div class="col-sm-2 col-form-label">
+                                    <label asp-for="ContractTo">To</label>
+                                </div>
+                                <div class="col-sm-4">
+                                    <input type="date" class="form-control" id="endDateInput" asp-for="ContractTo" />
+                                </div>
+                            </div>
+                            <span asp-validation-for="ContractFrom" class="text-danger"></span>
+                            <br />
+                            <span asp-validation-for="ContractTo" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label asp-for="DueDate" class="required">Due Date</label>
+                            <input type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" asp-for="DueDate" />
+                            <span asp-validation-for="DueDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label>Interview Notes</label>
+                            <div id="InterviewInfo">
+                                <textarea rows="3" class="form-control" id="inter-note" readonly></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group col-6">
+                            <label asp-for="Notes">Notes</label>
+                            <textarea rows="3" asp-for="Notes" class="form-control" id="Notes"></textarea>
+                        </div>
+                        <div class="form-group col-6">
+                            <label asp-for="BasicSalary" class="required">Basic Salary (VND)</label>
+                            <input type="number" asp-for="BasicSalary" class="form-control mask" />
+                            <span asp-validation-for="BasicSalary" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6">
+                        </div>
+
+
+                    </div>
+                    <div class="d-flex justify-content-end mt-2">
+                        <button type="submit" id="submitButton" class="btn btn-success btn-inform mr-3">Submit</button>
+                        <a asp-controller="Offer" asp-action="Index" class="btn btn-secondary btn-font-size btn-inform">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        //check To date and From date
+        document.getElementById('submitButton').addEventListener("click", function (event) {
+            let startDate = new Date(document.getElementById("startDateInput").value);
+            let endDate = new Date(document.getElementById("endDateInput").value);
+            if (endDate < startDate) {
+                document.getElementById('startDateInput').focus();
+                toastr.warning('To date is invalid. To date must be after From date. Please try again!');
+                event.preventDefault();
+            }
+        });
+
+        $(document).ready(function () {
+            // Function to format salary input fields
+            $('input.mask').each((i, ele) => {
+                let clone = $(ele).clone(false)
+                clone.attr('type', 'text')
+                let ele1 = $(ele)
+                clone.val(Number(ele1.val()).toLocaleString('en'))
+                $(ele).after(clone)
+                $(ele).hide()
+                clone.focus(() => {
+                    ele1.show()
+                    clone.hide()
+                })
+                setInterval(() => {
+                    let newv = Number(ele1.val()).toLocaleString('en')
+                    if (clone.val() != newv) {
+                        clone.val(newv)
+                    }
+                }, 10)
+
+                $(ele).mouseleave((event) => {
+                    if ($(ele).is(':focus')) {
+                        event.preventDefault();
+                    } else {
+                        $(clone).show()
+                        $(ele1).hide()
+                    }
+                })
+                $(ele).focusout(() => {
+                    $(clone).show()
+                    $(ele1).hide()
+                })
+            });
+        });
+    </script>
+    <script>
+        // Add assign me
+        document.getElementById("assignMe").addEventListener("click", function () {
+            var options = document.getElementById("recruiterDropdown").options;
+            var userName = "@User.Identity.Name";
+            for (var i = 0; i < options.length; i++) {
+                var optionValue = options[i].text.split(" - ")[0];
+                console.log("The option value is:", optionValue);
+                if (optionValue === userName) {
+                    options[i].selected = true;
+                    break;
+                }
+            }
+        });
+
+
+    </script>
+    <script>
+
+
+        //Load interview by candidateId use ajax
+        function loadInterviewSchedules(candidateId) {
+            $.ajax({
+                url: '/Offer/GetInterviewSchedules',
+                type: 'GET',
+                data: { candidateId: candidateId },
+                success: function (data) {
+                    $('#Interviews').empty();
+                    $('#inter-note').empty();
+                    if (data.length === 0) {
+                        toastr.warning('There are no interviews scheduled for this candidate. Please choose another candidate.');
+                    } else {
+                        var options = '<option disabled selected>Please select an option</option>';
+                        // Create option for interview schedule
+                        for (var i = 0; i < data.length; i++) {
+                            options += '<option value="' + data[i].interviewScheduleId + '">' + data[i].title + '</option>';
+                        }
+
+                        // Update select "Interviews"
+                        $('#Interviews').html(options);
+                    }
+
+                },
+            });
+        }
+
+        //Load interview note by id
+        function getInterviewById(interviewId) {
+            $.ajax({
+                url: '/Offer/GetInterviewById',
+                type: 'GET',
+                data: { interviewId: interviewId },
+                success: function (data) {
+                    //if have interview then display note
+                    var noteText = data.notes ? data.notes : 'N/A';
+                    $('#inter-note').text(noteText);
+                },
+            });
+        }
+        var selectElement = document.querySelector('.select-candidate');
+        var initialValue = selectElement.value;
+        if (initialValue !== "") {
+            loadInterviewSchedules(initialValue);
+            console.log(initialValue);
+        }
+    </script>
+}

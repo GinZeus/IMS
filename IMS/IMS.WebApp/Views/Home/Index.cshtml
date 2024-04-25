@@ -1,0 +1,22 @@
+﻿
+@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="welcome">
+    <img src="~/images/icon/waving-hand.png" alt="Welcome Image"> 
+    <h1>Welcome to Interview Management System</h1>
+    <p>Let's get started</p>
+    <nav>
+		<a asp-controller="Candidate" asp-action="Index" aria-expanded="true"><i class="fa fa-users"></i><span>Candidate</span></a>
+		<a asp-controller="Job" asp-action="Index" aria-expanded="true"><i class="ti-briefcase"></i><span>Job</span></a>
+		<a asp-controller="InterviewSchedule" asp-action="Index" aria-expanded="true"><i class="ti-comments"></i><span>Interview</span></a>
+		@if (!User.IsInRole("Interviewer"))
+		{
+			<a asp-controller="Offer" asp-action="Index" aria-expanded="true"><i class="fa fa-newspaper-o"></i><span>Offer</span></a>
+		}
+		@if (User.IsInRole("Admin"))
+		{
+			<a asp-controller="Account" asp-action="Index" aria-expanded="true"><i class="ti-user"></i><span>User</span></a>
+		}
+    </nav>
+</div>

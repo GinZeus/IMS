@@ -1,0 +1,229 @@
+﻿﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model EditCandidateVM
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> signInManager
+@using IMS.Models
+@using IMS.Utilities.Constants
+<partial name="_Notification" />
+
+@{
+    SelectList positionList = new SelectList(Model.Positions, nameof(Position.PositionId), nameof(Position.PositionName));
+    SelectList skillList = new SelectList(Model.Skills, nameof(Skill.SkillId), nameof(Skill.SkillName));
+    SelectList recruiterList = new SelectList(Model.RecruiterList, nameof(IMS.Models.User.Id), nameof(IMS.Models.User.UserName));
+    SelectList academicLevelList = new SelectList(Model.AcademicLevels, nameof(AcademicLevel.AcademicLevelId), nameof(AcademicLevel.AcademicLevelName));
+    SelectList genderList = new SelectList(Model.Genders);
+
+    ViewData["Title"] = "Edit Candidate";
+}
+
+<div class="container">
+    <div class="col-12 mt-5">
+        <div class="card">
+            <div class="card-body">
+                <div class="row-col d-flex justify-content-between align-items-end">
+                    <h4 class="header-title">Edit Candidate</h4>
+                    @if (!User.IsInRole("Interviewer")){
+                        @if (Model.SelectedStatus != CandidateStatus.Banned)
+                        {
+                            <button type="button" class="btn btn-danger" style="cursor: pointer" data-toggle="modal" data-target="#BanCandidate">Ban Candidate</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-danger" style="cursor: pointer" data-toggle="modal" data-target="#UnbanCandidate">Unban Candidate</button>
+                        }
+                    }
+                </div>
+                <form enctype="multipart/form-data" asp-asp-controller="Candidate" asp-action="Edit" method="post">
+                    <div class="form-group">
+                        <h3 class="title"><strong>I. Personal information</strong></h3>
+                        <div class="row">
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="FullName">Full Name </label>
+                                <input class="form-control" asp-for="FullName" placeholder="Type a name..." />
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="Email">Email </label>
+                                <input class="form-control" asp-for="Email" placeholder="Type an email..." />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="DOB">D.O.B </label>
+                                <input type="date" class="form-control" id="DOBInput" asp-for="DOB" />
+                                <span asp-validation-for="DOB" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="Address">Address </label>
+                                <input class="form-control" asp-for="Address" placeholder="Type an address..." />
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="PhoneNumber">Phone Number </label>
+                                <input class="form-control" asp-for="PhoneNumber" placeholder="Type a number..." />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="SelectedGender">Gender </label>
+                                <select asp-for="SelectedGender" asp-items="genderList" class="form-control">
+                                    <option value="" disabled selected>Select a gender</option>
+                                </select>
+                                <span asp-validation-for="SelectedGender" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <h3 class="title"><strong>II. Professional information</strong></h3>
+                        <div class="row">
+                            <div class="form-group col-6">
+                                <label class="col-form-label" asp-for="CVAttachment">CV Attachment </label>
+                                <input type="file" accept=".pdf, .doc, .docx" asp-for="CVAttachment" class="form-control">
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="SelectedPositionId">Position </label>
+                                <select asp-for="SelectedPositionId" class="form-control" asp-items="positionList">
+                                    <option value="" disabled selected>Select a position</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="SelectedAcademicLevelId">Highest level </label>
+                                <select asp-for="SelectedAcademicLevelId" class="form-control" asp-items="academicLevelList">
+                                    <option value="" disabled selected>Select a level</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="Skills">Skills </label>
+                                <select asp-for="SelectedSkillsId" class="form-control" asp-items="skillList" id="multiSkill" multiple></select>
+                                <span asp-validation-for="SelectedSkillsId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label required" asp-for="RecruiterList">Recruiter </label>
+                                <div class="form-row justify-content-between">
+                                    <select asp-for="SelectedRecruiterId" class="form-control required @(User.IsInRole("Recruiter") ? "col-sm-10" : "col-sm-12")" asp-items="recruiterList">
+                                        <option value="" disabled selected>Select a recruiter</option>
+                                    </select>
+                                    @if (User.IsInRole("Recruiter"))
+                                    {
+                                        <button type="button" style="height:39px; width:80px; border-radius:6px; border:none;" id="assignMe">Assign me</button>
+                                    }
+                                </div>
+                                <span asp-validation-for="SelectedRecruiterId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="col-form-label" asp-for="YearOfExp">Year of experience </label>
+                                <input type="number" class="form-control" asp-for="YearOfExp" />
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 20px">
+                            <div class="form-group col-6">
+                                <label class="col-form-label" asp-for="SelectedStatus">Status </label>
+                                <input class="form-control" asp-for="SelectedStatus" readonly />
+                                <span asp-validation-for="SelectedStatus" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-6">
+                                <label asp-for="Note">Note </label>
+                                <textarea asp-for="Note" id="note" class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-2">
+                            <button type="submit" id="submitBtn" class="btn btn-success">Submit</button>
+                            <span class="mx-2"></span>
+                            <button asp-controller="Candidate" asp-action="Index" class="btn btn-secondary">Cancel</button>
+                        </div>
+
+                        <input id="currentUserName" type="hidden" value="@(signInManager.IsSignedIn(User) ? User.Identity.Name : "")" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Ban Candidate-->
+<form class="form-inline" asp-controller="Candidate" asp-action="Ban" asp-route-id="@Url.ActionContext.RouteData.Values["id"]">
+    <div class="modal fade" id="BanCandidate">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ban Candidate</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to ban this candidate?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Yes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Modal for Unban Candidate-->
+<form class="form-inline" asp-controller="Candidate" asp-action="Unban" asp-route-id="@Url.ActionContext.RouteData.Values["id"]">
+    <div class="modal fade" id="UnbanCandidate">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Unban Candidate</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to unban this candidate?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Yes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@2.0.1/dist/js/multi-select-tag.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        new MultiSelectTag('levels')
+    </script>
+    <script>
+        // Add multiselect select2
+        $(document).ready(function () {
+
+            $('#multiSkill').select2({
+                placeholder: 'Select an option',
+            });
+
+        });
+    </script>
+    <script>
+        //BRL-6-04 : D.O.B must be a past date.
+        document.getElementById('DOBInput').setAttribute('max', new Date().toISOString().split('T')[0]);
+
+        // Add assign me
+        document.getElementById("assignMe").addEventListener("click", function () {
+            var usernameElement = document.getElementById("currentUserName");
+
+            // Ensure username is available before proceeding
+            if (usernameElement) {
+                var username = usernameElement.value;
+                console.log("The user value is:", username);
+
+                var options = document.getElementById("SelectedRecruiterId").options;
+                for (var i = 0; i < options.length; i++) {
+                    var optionValue = options[i].text.split(" - ")[0];
+                    console.log("The option value is:", optionValue);
+                    if (optionValue === username) {
+                        options[i].selected = true;
+                        break;
+                    }
+                }
+            } else {
+                console.error("Username element not found.");
+            }
+        });
+    </script>
+}

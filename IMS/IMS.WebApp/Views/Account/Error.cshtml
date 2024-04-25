@@ -1,0 +1,22 @@
+﻿@{
+	ViewData["Title"] = "Error";
+	Layout = "/Views/Shared/_LayoutIdentity.cshtml";
+}
+
+<!-- preloader area start -->
+<div id="preloader">
+	<div class="loader"></div>
+</div>
+<!-- preloader area end -->
+<!-- error area start -->
+<div class="error-area ptb--100 text-center">
+	<div class="container">
+		<div class="error-content">
+			<i class="fa fa-chain-broken" style="font-size:100px"></i>
+			<p>Ooops! Something went wrong .</p>
+			<p>The link is invalid or expired. Please go back to Homepage and try again.</p>
+			<a class="mt-4 btn btn-link" asp-controller="Home" asp-action="Index">Back to Dashboard</a>
+		</div>
+	</div>
+</div>
+<!-- error area end -->
